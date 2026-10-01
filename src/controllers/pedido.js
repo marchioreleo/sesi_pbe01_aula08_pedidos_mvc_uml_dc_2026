@@ -1,10 +1,33 @@
 const pedidos = require("../../dados/pedidos.json")
+const item = require(".././controllers/itens")
+const listarItens = require("../../dados/itens.json")
+const produtos = require("../../dados/produtos.json")
 
-function subtotais() {
+
+function calcTotais(req, res) {
+
+    // listarItens.forEach(i => {
+    //     const aux2 = listarProdutos.find(l => l.id == i.id)
+    //     i.preco = aux2.preco
+    // })
+
     pedidos.forEach(p => {
-        p.subtotal = p.quantidade * p.preco
+
+        let total = 0
+        const aux = listarItens.filter(i => i.pedido_id == p.id)
+
+        aux.forEach(a => {
+            total += a.quantidade * produtos.find(p => p.id == a.produto_id).preco
+        })
+
+        console.log(p.id, total)
+
     })
+
+    res.send()
+
 }
+
 
 const criar = (req, res) => {
     const dados = req.body
@@ -14,7 +37,7 @@ const criar = (req, res) => {
 }
 
 const listar = (req, res) => {
-    subtotais()
+    calcTotais()
     res.json(pedidos)
 }
 
@@ -25,35 +48,36 @@ const alterar = (req, res) => {
 
     pedidos.forEach((pedido) => {
         if (pedido.id == id) {
-            pedido.produto = dados.produto
-            pedido.preco = dados.preco
-            pedido.quantidade = dados.quantidade
+            pedido.cliente_id = dados.cliente_id
+            pedido.data = dados.data
             status = 1
         }
     })
-    if(status == 1) {
+    if (status == 1) {
         res.send("Pedido atualizado com sucesso")
-    }else{
+    } else {
         res.status(404).send("Erro ao atualizar pedido")
     }
 
 }
+
 const excluir = (req, res) => {
     const id = req.params.id
     let status = 0
 
     pedidos.forEach((pedido, indice) => {
-        if(pedido.id == id) {
+        if (pedido.id == id) {
             status = 1
             pedidos.splice(indice, 1)
         }
     })
-    if(status == 1) {
+    if (status == 1) {
         res.send("Pedido excluido com sucesso")
-    }else{
+    } else {
         res.status(404).send("Erro ao excluir pedido")
     }
 }
+
 
 module.exports = {
     criar,
